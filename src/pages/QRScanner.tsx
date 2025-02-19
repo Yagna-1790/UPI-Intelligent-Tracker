@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { QrCode, Camera, X } from 'lucide-react';
 import { Html5QrcodeScanner } from 'html5-qrcode';
+import { useTransactions } from '../context/TransactionContext';
 
 function QRScanner() {
   const [scanning, setScanning] = useState(false);
   const [scanResult, setScanResult] = useState<string | null>(null);
+  const { addTransaction } = useTransactions();
 
   useEffect(() => {
     if (scanning) {
@@ -24,6 +26,21 @@ function QRScanner() {
         (decodedText) => {
           console.log(`Code scanned = ${decodedText}`);
           setScanResult(decodedText);
+          try {
+            const url = new URL(decodedText);
+            const params = new URLSearchParams(url.search);
+            const transaction = {
+              id: params.get('tid') || `txn_${Date.now()}`,
+              merchant: params.get('pn') || 'Unknown Merchant',
+              amount: Number(params.get('am')) || 0,
+              category: 'Shopping', // Default category, can be improved with AI classification
+              date: new Date().toISOString(),
+              status: 'completed'
+            };
+            addTransaction(transaction);
+          } catch (error) {
+            console.error('Invalid QR code format:', error);
+          }
           scanner.clear();
           setScanning(false);
         },
@@ -36,7 +53,7 @@ function QRScanner() {
         scanner.clear();
       };
     }
-  }, [scanning]);
+  }, [scanning, addTransaction]);
 
   const handleStartScanning = () => {
     setScanResult(null);
@@ -91,30 +108,6 @@ function QRScanner() {
               </button>
             </div>
           ) : null}
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Scans</h2>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div>
-              <p className="font-medium text-gray-900">Coffee Shop</p>
-              <p className="text-sm text-gray-600">₹120 • 5 minutes ago</p>
-            </div>
-            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-              Completed
-            </span>
-          </div>
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div>
-              <p className="font-medium text-gray-900">Grocery Store</p>
-              <p className="text-sm text-gray-600">₹450 • 2 hours ago</p>
-            </div>
-            <span className="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-              Completed
-            </span>
-          </div>
         </div>
       </div>
     </div>
