@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#reader {
+  width: 100% !important;
+  height: auto !important;
+}
+
+#reader video {
+  width: 100% !important;
+  height: auto !important;
+  border-radius: 0.5rem;
+}
+
+#reader__scan_region {
+  background: white !important;
+  border-radius: 0.5rem;
+}
+
+#reader__scan_region > img {
+  display: none;
+}
+
+#reader__dashboard {
+  padding: 1rem !important;
+}
+
+#reader__dashboard_section_swaplink {
+  display: none;
+}
+
+#reader__status_span {
+  display: none;
+}
